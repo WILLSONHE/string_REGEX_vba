@@ -1,0 +1,64 @@
+Function CleanString(rawString As String, toRemove As Range) As String
+    Dim updatedString As String 'Declare a string to store our "cleaned" String
+    updatedString = rawString 'Assign it the original rawString
+    'Loop through each of the toRemove range
+    For i = 1 To toRemove.Count
+        updatedString = Replace(updatedString, toRemove(i), "")
+    Next i
+    CleanString = updatedString
+End Function
+
+
+
+Sub ClearResults()
+    Dim resultRng As Range
+    Set resultRng = Worksheets("search").Range("B4:B200") 'fix this
+    For i = 1 To resultRng.Count
+    'fix this -- Set the ith cell in resultRng to the empty string ("")
+        If resultRng(i) = 0 Then
+            Exit For
+        End If
+        resultRng.Cells(i) = ""
+    Next i
+End Sub
+
+
+
+Sub SimpleSearch()
+    Dim keyword As String
+    keyword = Worksheets("search").Cells(1, 2)
+    
+    Dim resultRng As Range
+    Set resultRng = Worksheets("search").Range("B4:B200") 'fix this
+    
+    Dim courseDescRng As Range
+    Set courseDescRng = Worksheets("courseD").Range("C1:C112") 'fix this
+    
+    Dim courseTitles As Range
+    Set courseTitles = Worksheets("courseD").Range("A1:A112") 'fix this
+
+    Dim currentResult As Integer
+    currentResult = 1
+    
+    Dim descWords() As String 'Dynamic array of strings called descWords
+    
+    For i = 1 To courseDescRng.Count 'Loop through each course description
+        'Use the split function to split the current course description into an array of single words. The second parameter is the delimiter, the character we are splitting the string around. In this case each space will create a new word.
+        descWords = Split(courseDescRng.Cells(i), " ")
+        For j = LBound(descWords) To UBound(descWords) 'Loop through each word in the descWord array.
+            'Use StrComp to compare the current word in descWords (at index j)to the keyword from cell A2, that we have stored in the keywordvaraible. If they are equal StrComp will return 0.
+            'If StrComp('Put the correct arguments to StrComp here) = 0 Then
+            If StrComp(descWords(j), keyword) = 0 Then ' fix this
+                'We found a match so we want to add a result to the result list. This puts the course title (from the coureTitles range) in the result range on the Search sheet.
+                'Debug.Print (keyword & descWords(j))
+                resultRng.Cells(currentResult) = courseTitles.Cells(i)
+                'Add one to currentResult so that we will output the course title in the next cell the next time we find a match.
+                currentResult = currentResult + 1
+                'We found a match so we do not need to keep checking words
+                Exit For
+            End If
+        Next j
+        resultRng.Cells(currentResult) = "END" 'in case it clearResults hadn't been called
+    Next i
+End Sub
+
